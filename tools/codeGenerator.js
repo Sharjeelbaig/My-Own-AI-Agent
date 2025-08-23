@@ -259,8 +259,22 @@ async function createReactProject(description, targetPath) {
     const projectName = extractProjectName(description);
     const projectPath = path.join(targetPath, projectName);
     
+    // Ensure target directory exists
+    await fs.ensureDir(targetPath);
+    
     // Copy React template
     const templatePath = path.resolve('./boilerplates/react-template');
+    
+    // Check if template exists
+    const templateExists = await fs.pathExists(templatePath);
+    if (!templateExists) {
+        return JSON.stringify({
+            success: false,
+            error: `React template not found at ${templatePath}`,
+            message: 'React template directory is missing'
+        }, null, 2);
+    }
+    
     await fs.copy(templatePath, projectPath);
     
     // Customize App.tsx based on description
@@ -974,7 +988,8 @@ function extractTitle(description) {
 }
 
 function extractProjectName(description) {
-    return extractTitle(description).replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').toLowerCase();
+    const title = extractTitle(description).replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '-').toLowerCase();
+    return title || 'generated-project';
 }
 
 function extractTheme(description) {
