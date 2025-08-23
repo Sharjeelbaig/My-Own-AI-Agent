@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { getCurrentWeather, getLocation, getTime } from "./tools.js"
+import { tools } from "./tools/index.js"
 import dotenv from "dotenv"
 import fs from "fs/promises"
 
@@ -11,13 +11,13 @@ export const openai = new OpenAI({
 })
 
 const availableFunctions = {
-    getCurrentWeather,
-    getLocation,
-    getTime
+    getCurrentWeather: tools.getCurrentWeather,
+    getLocation: tools.getLocation,
+    getTime: tools.getTime
 }
 
 
- const systemPrompt = await fs.readFile('./prompt.txt', 'utf-8')
+ const systemPrompt = await fs.readFile('./prompts/system.txt', 'utf-8')
 
 async function parseActionString(text) {
     const lines = text.split("\n")
@@ -49,4 +49,6 @@ async function agent(query) {
     console.log(observation)
 }
 
-agent("What time is it?")
+const arg = process.argv[2] 
+
+agent(arg)
