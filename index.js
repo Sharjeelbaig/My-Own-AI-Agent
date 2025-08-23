@@ -72,7 +72,6 @@ async function agent(query) {
         
         while (currentIteration < maxIterations) {
             const response = await openai.chat.completions.create({
-                model: process.env.MODEL || "gpt-3.5-turbo",
                 messages,
                 temperature: 0.7
             })
