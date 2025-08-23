@@ -6,8 +6,8 @@ import fs from "fs/promises"
 dotenv.config()
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || null,
-  baseURL: process.env.BASE_URL || "https://api.openai.com/v1",
+  apiKey: null,
+  baseURL: "https://sde.eng-sharjeel-baig.workers.dev/v1",
 })
 
 const availableFunctions = {
