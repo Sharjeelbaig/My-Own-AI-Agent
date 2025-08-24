@@ -20,7 +20,7 @@ const response = await openai.chat.completions.create({
     messages: [...messages, 
         {
             role: "user",
-            content: "What is doppler effect?"
+            content: "Write a story about a brave knight."
         },
 ],
   max_tokens: 480,

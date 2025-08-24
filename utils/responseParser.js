@@ -1,33 +1,67 @@
 import { getDate } from "../tools/date.js";
 import { search } from "../tools/search.js";
+import { bashExecute } from "../tools/bashExecute.js";
 import { getCurrentTime } from "../tools/time.js";
+import {executeJS} from "../tools/executeJS.js";
+// Note: we intentionally do not import or expose dangerous globals like `eval`.
 
 // Helper to parse the arguments array string captured from the tag.
+function stripOuterQuotes(s) {
+    if (typeof s !== 'string') return s;
+    const t = s.trim();
+    if (t.length >= 2 && ((t[0] === "'" && t[t.length - 1] === "'") || (t[0] === '"' && t[t.length - 1] === '"'))) {
+        return t.slice(1, -1);
+    }
+    return t;
+}
+
 function parseArgs(argsGroup) {
     // argsGroup is expected to be a JSON-like array string, e.g. '["foo", "bar"]'
-    // Use JSON.parse but tolerate simple single-quoted inner strings like "'foo'" -> "foo"
-    const parsed = JSON.parse(argsGroup);
-    if (Array.isArray(parsed)) {
-        return parsed.map(a => {
-            if (typeof a === 'string') {
-                const s = a.trim();
-                if (s.length >= 2 && s[0] === "'" && s[s.length - 1] === "'") {
-                    return s.slice(1, -1);
+    // First, try strict JSON.parse for well-formed inputs.
+    try {
+        const parsed = JSON.parse(argsGroup);
+        if (Array.isArray(parsed)) return parsed.map(stripOuterQuotes);
+        return [parsed].map(stripOuterQuotes);
+    } catch (err) {
+        // Fallback: tolerant parser that extracts single- or double-quoted strings
+        // or unquoted comma-separated tokens. Also split accidental shell
+        // redirection patterns like "something > ./path" into two args.
+        try {
+            const raw = String(argsGroup).trim();
+            // remove surrounding brackets if present
+            const inner = raw.replace(/^\s*\[/, '').replace(/\]\s*$/, '');
+            const parts = [];
+            const re = /'([^']*)'|"([^"]*)"|([^,]+)/g;
+            let m;
+            while ((m = re.exec(inner)) !== null) {
+                const val = m[1] ?? m[2] ?? m[3] ?? '';
+                const s = val.trim();
+                if (s.length === 0) continue;
+                // If token contains a '>' redirect, split it into two tokens
+                if (s.includes('>')) {
+                    const [left, right] = s.split('>');
+                    if (left && left.trim()) parts.push(left.trim());
+                    if (right && right.trim()) parts.push(right.trim());
+                    continue;
                 }
-                return s;
+                parts.push(s);
             }
-            return a;
-        });
+            return parts.map(stripOuterQuotes);
+        } catch (err2) {
+            // As a last resort, return the raw string as single argument
+            return [String(argsGroup)];
+        }
     }
-    return parsed;
 }
 
 // Allowed functions map (whitelist)
 const functions = {
     getCurrentTime,
     getDate,
+    search,
+    bashExecute,
     eval,
-    search
+    executeJS
 };
 
 export async function parseResponse(unParsedResponse) {

@@ -1,4 +1,7 @@
 import OpenAI from "openai/index.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 const openai = new OpenAI({
     apiKey: null,
     baseURL: process.env.BASE_URL
@@ -132,6 +135,6 @@ export async function responseCompleter(oldResponse) {
     });
     return oldResponse + response?.choices[0]?.message?.content;
 } else {
-    return response;
+    return oldResponse;
 }
 }
