@@ -1,7 +1,7 @@
 import OpenAI from "openai/index.js";
 const openai = new OpenAI({
     apiKey: null,
-    baseURL: 'https://sde.eng-sharjeel-baig.workers.dev/v1'
+    baseURL: process.env.BASE_URL
 });
 export async function responseCompleter(oldResponse) {
     if(!oldResponse?.includes('</Response>')) {
