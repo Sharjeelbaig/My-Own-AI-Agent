@@ -3,7 +3,6 @@ import { search } from "../tools/search.js";
 import { bashExecute } from "../tools/bashExecute.js";
 import { getCurrentTime } from "../tools/time.js";
 import {executeJS} from "../tools/executeJS.js";
-// Note: we intentionally do not import or expose dangerous globals like `eval`.
 
 // Helper to parse the arguments array string captured from the tag.
 function stripOuterQuotes(s) {

@@ -9,7 +9,7 @@
  * @param {'iso'|'timestamp'|'unix'|'date'} [format='iso']
  * @returns {string|number|Date}
  */
-export function getCurrentTime(format = 'iso') {
+export function getCurrentTime(format = 'hh:mm') {
     const now = new Date();
     switch (format) {
         case 'timestamp':
