@@ -1,0 +1,1 @@
+// to be implemented, it queries every information from it's own knowlwdge base
